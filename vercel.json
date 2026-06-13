@@ -1,10 +1,5 @@
 {
   "version": 2,
-  "functions": {
-    "api/claude.js": {
-      "runtime": "@vercel/node"
-    }
-  },
   "routes": [
     {
       "src": "/api/claude",
