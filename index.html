@@ -186,25 +186,24 @@
     box.innerHTML = html;
   }
 
-  async function callClaude(messages, maxTokens = 300) {
+  async function callClaude(prompt, maxTokens = 300) {
     const res = await fetch(PROXY, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: maxTokens, messages })
+      body: JSON.stringify({ prompt, max_tokens: maxTokens })
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    return data.content[0].text;
+    return data.text;
   }
 
   async function suggestTopics() {
     const container = document.getElementById('topic-suggestions');
     container.innerHTML = '<span style="font-size:12px;color:#6b7280;">Thinking…</span>';
     try {
-      const text = await callClaude([{
-        role: 'user',
-        content: 'Suggest 6 SEO blog article topics for levelop.dev, an AI-powered coding interview prep platform for 2-6 year experience engineers targeting FAANG. Topics should naturally mention interview prep so a backlink to levelop.dev fits organically. Return ONLY a JSON array of 6 short topic strings, no markdown, no preamble.'
-      }]);
+      const text = await callClaude(
+        'Suggest 6 SEO blog article topics for levelop.dev, an AI-powered coding interview prep platform for 2-6 year experience engineers targeting FAANG. Topics should naturally mention interview prep so a backlink to levelop.dev fits organically. Return ONLY a JSON array of 6 short topic strings, no markdown, no preamble.'
+      );
       const topics = JSON.parse(text.replace(/```json|```/g, '').trim());
       container.innerHTML = '';
       topics.forEach(t => {
@@ -229,9 +228,8 @@
     btn.disabled = true; btn.textContent = 'Generating…';
     setStatus('Generating article with Claude…', 'info');
     try {
-      const text = await callClaude([{
-        role: 'user',
-        content: `Write a ${wordCount}-word ${tone} blog article about: "${topic}".
+      const text = await callClaude(
+        `Write a ${wordCount}-word ${tone} blog article about: "${topic}".
 Requirements:
 - Written for software engineers with 2-6 years experience
 - Practical, actionable advice
@@ -239,8 +237,7 @@ Requirements:
 - Use markdown formatting with ## headings
 - End with a short conclusion
 - Last line must be: TAGS: tag1, tag2, tag3, tag4
-Write only the article. Start with the title as # Title.`
-      }], 2500);
+Write only the article. Start with the title as # Title.`, 2500);
       const titleMatch = text.match(/^#\s+(.+)/m);
       generatedTitle = titleMatch ? titleMatch[1].trim() : topic;
       generatedBody = text;
