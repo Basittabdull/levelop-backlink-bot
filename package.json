@@ -1,0 +1,6 @@
+{
+  "name": "levelop-backlink-bot",
+  "version": "1.0.0",
+  "description": "Automated backlink content generator and publisher for levelop.dev",
+  "engines": { "node": ">=18" }
+}
